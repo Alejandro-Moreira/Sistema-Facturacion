@@ -1,4 +1,4 @@
-# Sistema de Facturación ECL FRUVER
+# Sistema de Facturación
 
 ## Requisitos Previos
 1. Node.js (versión 14 o superior)
@@ -49,8 +49,3 @@ npm start
 - Generación de facturas
 - Configuración de impresión
 - Soporte para logo y QR de pagos
-
-## Soporte
-Para soporte o preguntas, ingresa a https://ciscodedev.netlify.app/
-# Sistema-Facturacion
-# Sistema-Facturacion
