@@ -1,6 +1,76 @@
-node_modules/
-.env
-*.pem
-dist/
-*.zip
-Comandos.txt
+# =========================================
+# Unity 2022+ .gitignore
+# =========================================
+
+# --- Carpetas generadas automáticamente ---
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Mm]emoryCaptures/
+UserSettings/
+sysinfo.txt
+
+# --- Cache de compilación ---
+[Bb]ee/
+[Bb]urstCache/
+*.pidb
+*.booproj
+*.user
+*.suo
+*.tmp
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# --- Archivos de VS y Rider ---
+.vscode/
+.idea/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+
+# --- Archivos de OS ---
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# --- Archivos de paquetes ---
+*.unitypackage
+*.apk
+*.aab
+*.ipa
+
+# --- Carpeta de builds WebGL ---
+[Bb]uilds_WebGL/
+[Bb]uilds_Web/
+[Bb]uilds_Windows/
+
+# --- Datos del Editor ---
+*.xcworkspace
+*.xcuserstate
+*.xcuserdata/
+*.swp
+*.lock
+*.lockmeta
+
+# --- Datos del crash o profiler ---
+*.stacktrace
+*.dmp
+
+# --- Carpetas del paquete Addressables ---
+/ServerData/
