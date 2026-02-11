@@ -142,6 +142,26 @@ router.post('/', upload.fields([
     }
 });
 
+// Obtener QR para mostrar en facturación
+router.get('/qr', async (req, res) => {
+    try {
+        const [config] = await db.query('SELECT qr_data, qr_tipo FROM configuracion_impresion LIMIT 1');
+        
+        if (!config || config.length === 0 || !config[0].qr_data) {
+            return res.status(404).json({ error: 'QR no configurado' });
+        }
+
+        const qrData = config[0].qr_data;
+        const qrTipo = config[0].qr_tipo || 'png';
+        
+        res.setHeader('Content-Type', `image/${qrTipo}`);
+        res.send(qrData);
+    } catch (error) {
+        console.error('Error al obtener QR:', error);
+        res.status(500).json({ error: 'Error al obtener QR' });
+    }
+});
+
 // Eliminar la ruta de impresoras que no se usa
 router.get('/impresoras', (req, res) => {
     res.json([]);

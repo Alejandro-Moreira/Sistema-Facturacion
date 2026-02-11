@@ -178,11 +178,6 @@
 
         <div class="text-center small">
             <div><strong>Forma de Pago:</strong> <%= factura.forma_pago.charAt(0).toUpperCase() + factura.forma_pago.slice(1) %></div>
-            <% if (config.qr_src) { %>
-                <div class="mt-3 mb-3">
-                    <img src="<%= config.qr_src %>" alt="QR para transferencia" style="max-width: 150px;">
-                </div>
-            <% } %>
             <div class="mt-2">
                 <%= config.pie_pagina || '¡Gracias por su compra!' %>
             </div>
