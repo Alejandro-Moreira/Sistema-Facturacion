@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS productos (
 
 CREATE TABLE IF NOT EXISTS clientes (
     id INT PRIMARY KEY AUTO_INCREMENT,
+    cedula VARCHAR(50) UNIQUE,
     nombre VARCHAR(100) NOT NULL,
     direccion TEXT,
     telefono VARCHAR(20),

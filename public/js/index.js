@@ -43,6 +43,16 @@ $(document).ready(function() {
         localStorage.setItem('pedidos', JSON.stringify(pedidosGuardados));
     }
 
+    // Inicio estado inicial: ocultar cliente y botón de factura
+    $('#clienteCard').hide();
+    $('#generarFactura').hide();
+
+    // Mostrar modal de nuevo cliente al cargar la página
+    setTimeout(function() {
+        const nuevoClienteModal = new bootstrap.Modal(document.getElementById('nuevoClienteModal'));
+        nuevoClienteModal.show();
+    }, 500);
+
     // Inicializar Select2 para búsqueda de clientes y productos con mejoras
     $('.select2').select2({
         width: '100%',
@@ -204,6 +214,7 @@ $(document).ready(function() {
     // Guardar nuevo cliente
     $('#guardarCliente').click(function() {
         const cliente = {
+            cedula: $('#cedulaNuevoCliente').val().trim(),
             nombre: $('#nombreCliente').val().trim(),
             direccion: $('#direccionNuevoCliente').val().trim(),
             telefono: $('#telefonoNuevoCliente').val().trim()
@@ -224,9 +235,11 @@ $(document).ready(function() {
                 $('#cliente').append(newOption).trigger('change');
                 
                 // Actualizar información del cliente
+                $('#cedulaCliente').text(cliente.cedula || 'No especificada');
                 $('#direccionCliente').text(cliente.direccion || 'No especificada');
                 $('#telefonoCliente').text(cliente.telefono || 'No especificado');
                 $('#infoCliente').show();
+                $('#generarFactura').show();
 
                 // Cerrar modal y limpiar formulario
                 const modal = bootstrap.Modal.getInstance(document.getElementById('nuevoClienteModal'));
@@ -288,9 +301,81 @@ $(document).ready(function() {
     // Manejar cambio de cliente seleccionado
     $('#cliente').on('select2:select', function(e) {
         const cliente = e.params.data;
+        $('#cedulaCliente').text(cliente.cedula || 'No especificada');
         $('#direccionCliente').text(cliente.direccion || 'No especificada');
         $('#telefonoCliente').text(cliente.telefono || 'No especificado');
         $('#infoCliente').show();
+    });
+
+    // Manejar cliente desconocido desde el modal
+    $('#guardarClienteDesconocido').click(function() {
+        const cliente = {
+            cedula: '',
+            nombre: 'Desconocido',
+            direccion: '',
+            telefono: ''
+        };
+
+        $.ajax({
+            url: '/api/clientes',
+            method: 'POST',
+            data: cliente,
+            success: function(response) {
+                // Crear nueva opción en el select
+                const newOption = new Option(cliente.nombre, response.id, true, true);
+                $('#cliente').append(newOption).trigger('change');
+                
+                // Actualizar información del cliente
+                $('#cedulaCliente').text('No especificada');
+                $('#direccionCliente').text('No especificada');
+                $('#telefonoCliente').text('No especificado');
+                $('#infoCliente').show();                    $('#generarFactura').show();
+                // Cerrar modal y limpiar formulario
+                const modal = bootstrap.Modal.getInstance(document.getElementById('nuevoClienteModal'));
+                if (modal) {
+                    modal.hide();
+                } else {
+                    $('#nuevoClienteModal').modal('hide');
+                }
+                $('#formNuevoCliente')[0].reset();
+                
+                mostrarAlerta('success', 'Cliente desconocido creado exitosamente');
+            },
+            error: function(xhr) {
+                console.error('Error al guardar cliente:', xhr);
+                const error = xhr.responseJSON?.error || 'Error al guardar el cliente';
+                mostrarAlerta('error', error);
+            }
+        });
+    });
+
+    // Limpiar cliente seleccionado (opcional, solo si el usuario quiere)
+    $('#btnLimpiarCliente').click(function() {
+        $('#cliente').val('').trigger('change');
+        $('#cliente_id').val('');
+        $('#infoCliente').hide();
+        $('#generarFactura').hide();
+        $('#cliente').focus();
+    });
+
+    // Manejo de búsqueda por ID
+    $('#productoId').on('keypress', function(e) {
+        if (e.which === 13) {
+            e.preventDefault();
+            const id = $(this).val().trim();
+            if (!id) return;
+            $.get(`/api/productos/${id}`, function(producto) {
+                if (producto && producto.id) {
+                    $('#producto').val(producto.nombre);
+                    $('#producto_id').val(producto.id);
+                    actualizarPrecioSegunUnidad(producto, $('#unidadMedida').val());
+                } else {
+                    mostrarAlerta('error', 'Producto no encontrado');
+                }
+            }).fail(function() {
+                mostrarAlerta('error', 'Error al buscar producto');
+            });
+        }
     });
 
     // Reemplazar el select2 con un input simple para búsqueda de productos
@@ -484,6 +569,18 @@ $(document).ready(function() {
         });
 
         $('#totalFactura').text(totalFactura.toFixed(2));
+
+        // mostrar tarjeta de cliente si hay productos
+        if (productosFactura.length > 0) {
+            $('#clienteCard').show();
+            // también permitir generarfactura si cliente ya seleccionado
+            if ($('#cliente_id').val()) {
+                $('#generarFactura').show();
+            }
+        } else {
+            $('#clienteCard').hide();
+            $('#generarFactura').hide();
+        }
     }
 
     // Función para limpiar el formulario de producto

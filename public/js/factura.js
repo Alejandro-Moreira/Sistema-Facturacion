@@ -358,11 +358,13 @@ $(document).ready(function() {
     // Generar factura
     $('#generarFactura').click(function() {
         console.log('=== INICIO GENERACIÓN DE FACTURA ===');
-        const cliente_id = $('#cliente_id').val();
+        const cliente_id = $('#cliente_id').val() || null;
+        const cliente_nombre = $('#cliente').val();
         const forma_pago = $('#formaPago').val();
         
-        if (!cliente_id) {
-            mostrarAlerta('warning', 'Por favor seleccione un cliente');
+        // Permitir factura sin cliente seleccionado (cliente desconocido)
+        if (!cliente_nombre && !cliente_id) {
+            mostrarAlerta('warning', 'Por favor seleccione un cliente o use "Desconocido"');
             return;
         }
 
@@ -373,6 +375,7 @@ $(document).ready(function() {
 
         const factura = {
             cliente_id: cliente_id,
+            cliente_nombre: cliente_nombre,
             total: totalFactura,
             forma_pago: forma_pago,
             productos: productosFactura.map(p => ({

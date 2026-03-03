@@ -82,6 +82,7 @@
                     <table class="table table-hover">
                         <thead class="table-light">
                             <tr>
+                                <th>Cédula</th>
                                 <th>Nombre</th>
                                 <th>Dirección</th>
                                 <th>Teléfono</th>
@@ -91,6 +92,7 @@
                         <tbody id="clientesTabla">
                             <% clientes.forEach(function(cliente) { %>
                                 <tr>
+                                    <td><%= cliente.cedula || 'No especificada' %></td>
                                     <td><%= cliente.nombre %></td>
                                     <td><%= cliente.direccion || 'No especificada' %></td>
                                     <td><%= cliente.telefono || 'No especificado' %></td>
@@ -133,6 +135,10 @@
                 <div class="modal-body">
                     <form id="formCliente">
                         <input type="hidden" id="clienteId">
+                        <div class="mb-3">
+                            <label class="form-label">Cédula</label>
+                            <input type="text" class="form-control" id="cedula">
+                        </div>
                         <div class="mb-3">
                             <label class="form-label">Nombre</label>
                             <input type="text" class="form-control" id="nombre" required>

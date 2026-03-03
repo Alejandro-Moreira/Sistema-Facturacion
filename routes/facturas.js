@@ -4,11 +4,11 @@ const db = require('../db');
 
 // Crear nueva factura
 router.post('/', async (req, res) => {
-    const { cliente_id, total, forma_pago, productos } = req.body;
+    const { cliente_id, cliente_nombre, total, forma_pago, productos } = req.body;
     
     console.log('Datos recibidos:', req.body);
     
-    if (!cliente_id || !productos || productos.length === 0) {
+    if (!productos || productos.length === 0) {
         return res.status(400).json({ error: 'Datos incompletos' });
     }
 
@@ -20,10 +20,14 @@ router.post('/', async (req, res) => {
             // Iniciar transacción
             await connection.beginTransaction();
 
+            // Si no hay cliente_id, usar null (cliente desconocido)
+            // Si hay cliente_nombre pero no cliente_id, crear un cliente temporal
+            let finalClienteId = cliente_id || null;
+
             // Insertar factura
             const [result] = await connection.query(
                 'INSERT INTO facturas (cliente_id, total, forma_pago) VALUES (?, ?, ?)',
-                [cliente_id, total, forma_pago]
+                [finalClienteId, total, forma_pago]
             );
 
             const factura_id = result.insertId;
@@ -93,9 +97,9 @@ router.get('/:id/imprimir', async (req, res) => {
 
         // Obtener datos de la factura
         const [facturas] = await db.query(
-            `SELECT f.*, c.nombre as cliente_nombre, c.direccion, c.telefono
+            `SELECT f.*, COALESCE(c.nombre, 'Desconocido') as cliente_nombre, c.cedula, c.direccion, c.telefono
              FROM facturas f
-             JOIN clientes c ON f.cliente_id = c.id
+             LEFT JOIN clientes c ON f.cliente_id = c.id
              WHERE f.id = ?`,
             [factura_id]
         );

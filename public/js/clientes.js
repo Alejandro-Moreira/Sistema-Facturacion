@@ -42,6 +42,7 @@ $(document).ready(function() {
     // Guardar cliente
     $('#guardarCliente').click(function() {
         const cliente = {
+            cedula: $('#cedula').val(),
             nombre: $('#nombre').val(),
             direccion: $('#direccion').val(),
             telefono: $('#telefono').val()
@@ -75,6 +76,7 @@ function editarCliente(id) {
     $.get(`/api/clientes/${id}`, function(cliente) {
         modoEdicion = true;
         $('#clienteId').val(cliente.id);
+        $('#cedula').val(cliente.cedula || '');
         $('#nombre').val(cliente.nombre);
         $('#direccion').val(cliente.direccion || '');
         $('#telefono').val(cliente.telefono || '');
