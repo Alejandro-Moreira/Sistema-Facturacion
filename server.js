@@ -1,5 +1,7 @@
 require('dotenv').config();
 const express = require('express');
+const session = require('express-session');
+const flash   = require('connect-flash');
 const bodyParser = require('body-parser');
 const path = require('path');
 const fs = require('fs');
@@ -34,6 +36,39 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
+// Sesión y mensajes flash
+if (!process.env.SESSION_SECRET) {
+    if (process.env.NODE_ENV === 'production') {
+        console.error('FATAL: Define SESSION_SECRET en el archivo .env');
+        process.exit(1);
+    }
+    console.warn('WARN: SESSION_SECRET no definido — usando valor temporal (solo desarrollo)');
+    process.env.SESSION_SECRET = require('crypto').randomBytes(32).toString('hex');
+}
+
+// En producción detrás de un proxy (nginx) Express necesita confiar en la
+// cabecera X-Forwarded-Proto para que cookie.secure funcione correctamente.
+if (process.env.NODE_ENV === 'production') app.set('trust proxy', 1);
+
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure:   process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        sameSite: 'strict'
+    }
+}));
+app.use(flash());
+
+// Exponer mensajes flash a todas las vistas
+app.use((req, res, next) => {
+    res.locals.flash_success = req.flash('success');
+    res.locals.flash_error   = req.flash('error');
+    next();
+});
+
 // Configuración de archivos estáticos
 app.use('/static', express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -62,30 +97,16 @@ app.get('/', (req, res) => {
 });
 
 // Usar las rutas
-app.use('/productos', productosRoutes);
-app.use('/api/productos', productosRoutes);
-app.use('/clientes', clientesRoutes);
-app.use('/api/clientes', clientesRoutes);
-app.use('/facturas', facturasRoutes);
-app.use('/api/facturas', facturasRoutes);
+app.use('/productos',     productosRoutes);
+app.use('/clientes',      clientesRoutes);
+app.use('/facturas',      facturasRoutes);
 app.use('/configuracion', configuracionRoutes);
-app.use('/ventas', ventasRoutes);
+app.use('/ventas',        ventasRoutes);
 
-// Ruta para la página de productos
-app.get('/productos', async (req, res) => {
-    try {
-        const [productos] = await db.query('SELECT * FROM productos ORDER BY nombre');
-        res.render('productos', { productos: productos || [] });
-    } catch (error) {
-        console.error('Error al obtener productos:', error);
-        res.status(500).render('error', { 
-            error: {
-                message: 'Error al obtener productos',
-                stack: process.env.NODE_ENV === 'development' ? error.stack : ''
-            }
-        });
-    }
-});
+// Alias /api/* → mismos routers (compatibilidad con llamadas AJAX)
+app.use('/api/productos', productosRoutes);
+app.use('/api/clientes',  clientesRoutes);
+app.use('/api/facturas',  facturasRoutes);
 
 // Manejo de errores 404
 app.use((req, res, next) => {

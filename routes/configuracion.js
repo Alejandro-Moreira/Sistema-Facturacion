@@ -44,7 +44,7 @@ router.get('/', async (req, res) => {
         
         if (!config || config.length === 0) {
             // Si no hay configuración, renderizar la vista con valores por defecto
-            return res.render('configuracion', { 
+            return res.render('configuracion', {
                 config: {
                     nombre_negocio: '',
                     direccion: '',
@@ -65,7 +65,12 @@ router.get('/', async (req, res) => {
         res.render('configuracion', { config: configSinImagenes });
     } catch (error) {
         console.error('Error al obtener configuración:', error);
-        res.status(500).json({ error: 'Error al obtener configuración' });
+        res.status(500).render('error', {
+            error: {
+                message: 'Error al obtener configuración',
+                stack: process.env.NODE_ENV === 'development' ? error.stack : ''
+            }
+        });
     }
 });
 
@@ -135,6 +140,7 @@ router.post('/', upload.fields([
             await db.query(sql, values);
         }
 
+        req.flash('success', '¡Configuración guardada!');
         res.redirect('/configuracion');
     } catch (error) {
         console.error('Error en el procesamiento:', error);
