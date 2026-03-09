@@ -70,9 +70,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const productoData = {
             codigo: document.getElementById('codigo').value,
             nombre: document.getElementById('nombre').value,
-            precio_kg: parseFloat(document.getElementById('precioKg').value) || 0,
-            precio_unidad: parseFloat(document.getElementById('precioUnidad').value) || 0,
-            precio_libra: parseFloat(document.getElementById('precioLibra').value) || 0
+            precio_caja: parseFloat(document.getElementById('precioCaja').value) || 0,
+            precio_unidad: parseFloat(document.getElementById('precioUnidad').value) || 0
         };
 
         const productoId = document.getElementById('productoId').value;
@@ -141,9 +140,8 @@ function editarProducto(id) {
             document.getElementById('productoId').value = producto.id;
             document.getElementById('codigo').value = producto.codigo;
             document.getElementById('nombre').value = producto.nombre;
-            document.getElementById('precioKg').value = producto.precio_kg;
+            document.getElementById('precioCaja').value = producto.precio_caja;
             document.getElementById('precioUnidad').value = producto.precio_unidad;
-            document.getElementById('precioLibra').value = producto.precio_libra;
             
             document.getElementById('modalTitle').textContent = 'Editar Producto';
             const modal = new bootstrap.Modal(document.getElementById('nuevoProductoModal'));

@@ -23,13 +23,13 @@ router.get('/buscar', async (req, res) => {
     try {
         const query = req.query.q || '';
         const sql = `
-            SELECT * FROM clientes 
-            WHERE nombre LIKE ? OR telefono LIKE ?
+            SELECT * FROM clientes
+            WHERE nombre LIKE ? OR telefono LIKE ? OR cedula LIKE ?
             ORDER BY nombre
             LIMIT 10
         `;
         const searchTerm = `%${query}%`;
-        const [clientes] = await db.query(sql, [searchTerm, searchTerm]);
+        const [clientes] = await db.query(sql, [searchTerm, searchTerm, searchTerm]);
         res.json(clientes);
     } catch (error) {
         console.error('Error al buscar clientes:', error);

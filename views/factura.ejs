@@ -138,16 +138,10 @@
         </div>
 
         <div class="mb-3">
-            <% if (factura.cedula) { %>
-                <div><strong>Cédula:</strong> <%= factura.cedula %></div>
-            <% } %>
-            <div><strong>Cliente:</strong> <%= factura.cliente_nombre %></div>
-            <% if (factura.direccion) { %>
-                <div><strong>Dirección:</strong> <%= factura.direccion %></div>
-            <% } %>
-            <% if (factura.telefono) { %>
-                <div><strong>Teléfono:</strong> <%= factura.telefono %></div>
-            <% } %>
+            <div><strong>Cédula:</strong> <%= factura.cedula || 'Desconocido' %></div>
+            <div><strong>Cliente:</strong> <%= factura.cliente_nombre || 'Desconocido' %></div>
+            <div><strong>Dirección:</strong> <%= factura.direccion || 'Desconocido' %></div>
+            <div><strong>Teléfono:</strong> <%= factura.telefono || 'Desconocido' %></div>
         </div>
 
         <div class="divider"></div>
