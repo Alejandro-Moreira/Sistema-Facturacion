@@ -5,8 +5,12 @@ const flash   = require('connect-flash');
 const bodyParser = require('body-parser');
 const path = require('path');
 const fs = require('fs');
+const Keycloak = require('keycloak-connect');
 const app = express();
 const db = require('./db');
+
+// ── Keycloak: store compartido con express-session ──
+const memoryStore = new session.MemoryStore();
 
 // Crear directorios necesarios
 const createRequiredDirectories = () => {
@@ -54,18 +58,32 @@ app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+    store: memoryStore,
     cookie: {
         secure:   process.env.NODE_ENV === 'production',
         httpOnly: true,
-        sameSite: 'strict'
+        sameSite: 'lax'
     }
 }));
 app.use(flash());
 
-// Exponer mensajes flash a todas las vistas
+// ── Keycloak: inicializar y registrar middleware ──
+const keycloak = new Keycloak({ store: memoryStore });
+app.use(keycloak.middleware({ logout: '/logout', admin: '/' }));
+
+// Exponer mensajes flash y datos del usuario a todas las vistas
 app.use((req, res, next) => {
     res.locals.flash_success = req.flash('success');
     res.locals.flash_error   = req.flash('error');
+    // Inyectar info del usuario autenticado (disponible como 'user' en EJS)
+    if (req.kauth && req.kauth.grant) {
+        const tokenContent = req.kauth.grant.access_token.content;
+        res.locals.user = tokenContent;
+        res.locals.userRoles = (tokenContent.realm_access && tokenContent.realm_access.roles) || [];
+    } else {
+        res.locals.user = null;
+        res.locals.userRoles = [];
+    }
     next();
 });
 
@@ -91,22 +109,22 @@ const facturasRoutes = require('./routes/facturas');
 const configuracionRoutes = require('./routes/configuracion');
 const ventasRoutes = require('./routes/ventas');
 
-// Ruta principal
-app.get('/', (req, res) => {
+// Ruta principal (protegida por Keycloak)
+app.get('/', keycloak.protect(), (req, res) => {
     res.render('index');
 });
 
-// Usar las rutas
-app.use('/productos',     productosRoutes);
-app.use('/clientes',      clientesRoutes);
-app.use('/facturas',      facturasRoutes);
-app.use('/configuracion', configuracionRoutes);
-app.use('/ventas',        ventasRoutes);
+// Usar las rutas (todas protegidas por Keycloak)
+app.use('/productos',     keycloak.protect(), productosRoutes);
+app.use('/clientes',      keycloak.protect(), clientesRoutes);
+app.use('/facturas',      keycloak.protect(), facturasRoutes);
+app.use('/configuracion', keycloak.protect('realm:admin'), configuracionRoutes);
+app.use('/ventas',        keycloak.protect(), ventasRoutes);
 
-// Alias /api/* → mismos routers (compatibilidad con llamadas AJAX)
-app.use('/api/productos', productosRoutes);
-app.use('/api/clientes',  clientesRoutes);
-app.use('/api/facturas',  facturasRoutes);
+// Alias /api/* → mismos routers (protegidos, compatibilidad con llamadas AJAX)
+app.use('/api/productos', keycloak.protect(), productosRoutes);
+app.use('/api/clientes',  keycloak.protect(), clientesRoutes);
+app.use('/api/facturas',  keycloak.protect(), facturasRoutes);
 
 // Manejo de errores 404
 app.use((req, res, next) => {

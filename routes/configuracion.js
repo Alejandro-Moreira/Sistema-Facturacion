@@ -57,8 +57,14 @@ router.get('/', async (req, res) => {
             });
         }
 
-        // No enviar los datos binarios de las imágenes a la vista
+        // No enviar los datos binarios de las imágenes a la vista, sino convertirlos a base64 para previsualización
         const configSinImagenes = { ...config[0] };
+        if (config[0].logo_data) {
+            configSinImagenes.logo_src = `data:image/${config[0].logo_tipo};base64,${Buffer.from(config[0].logo_data).toString('base64')}`;
+        }
+        if (config[0].qr_data) {
+            configSinImagenes.qr_src = `data:image/${config[0].qr_tipo};base64,${Buffer.from(config[0].qr_data).toString('base64')}`;
+        }
         delete configSinImagenes.logo_data;
         delete configSinImagenes.qr_data;
 
@@ -144,7 +150,8 @@ router.post('/', upload.fields([
         res.redirect('/configuracion');
     } catch (error) {
         console.error('Error en el procesamiento:', error);
-        res.status(500).json({ error: 'Error interno del servidor' });
+        req.flash('error', 'Error al guardar la configuración: ' + error.message);
+        res.redirect('/configuracion');
     }
 });
 
