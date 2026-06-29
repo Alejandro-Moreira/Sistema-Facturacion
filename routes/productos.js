@@ -62,7 +62,7 @@ router.post('/', async (req, res) => {
             return res.status(400).json({ error: 'El código y nombre son requeridos' });
         }
 
-        const result = await db.query(
+        const [result] = await db.query(
             'INSERT INTO productos (codigo, nombre, precio_caja, precio_unidad) VALUES (?, ?, ?, ?)',
             [codigo, nombre, precio_caja || 0, precio_unidad || 0]
         );
@@ -90,7 +90,7 @@ router.put('/:id', async (req, res) => {
             return res.status(400).json({ error: 'El código y nombre son requeridos' });
         }
 
-        const result = await db.query(
+        const [result] = await db.query(
             'UPDATE productos SET codigo = ?, nombre = ?, precio_caja = ?, precio_unidad = ? WHERE id = ?',
             [codigo, nombre, precio_caja || 0, precio_unidad || 0, req.params.id]
         );
@@ -112,7 +112,7 @@ router.put('/:id', async (req, res) => {
 // DELETE /productos/:id - Eliminar producto
 router.delete('/:id', async (req, res) => {
     try {
-        const result = await db.query('DELETE FROM productos WHERE id = ?', [req.params.id]);
+        const [result] = await db.query('DELETE FROM productos WHERE id = ?', [req.params.id]);
         
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'Producto no encontrado' });

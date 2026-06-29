@@ -6,9 +6,9 @@ const db = require('../db');
 router.get('/', async (req, res) => {
     try {
         let query = `
-            SELECT f.*, c.nombre as cliente_nombre
+            SELECT f.*, COALESCE(c.nombre, 'Desconocido') as cliente_nombre
             FROM facturas f
-            JOIN clientes c ON f.cliente_id = c.id
+            LEFT JOIN clientes c ON f.cliente_id = c.id
         `;
         const params = [];
 

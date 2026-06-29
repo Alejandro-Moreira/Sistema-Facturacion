@@ -143,7 +143,7 @@ router.get('/:id/detalles', async (req, res) => {
         // Obtener información de la factura
         const [facturas] = await db.query(
             'SELECT f.*, c.nombre as cliente_nombre, c.direccion, c.telefono FROM facturas f ' +
-            'JOIN clientes c ON f.cliente_id = c.id ' +
+            'LEFT JOIN clientes c ON f.cliente_id = c.id ' +
             'WHERE f.id = ?',
             [req.params.id]
         );
@@ -252,7 +252,8 @@ router.get('/:id/seguro', async (req, res) => {
             plainKey = localPlainKey;
             
             // Simular KMS.encrypt de la data key con la clave maestra estática
-            const MOCK_MASTER_KEY = crypto.scryptSync('applebox-studios-kms-master-secret-key-salt-seed', 'salt', 32);
+            const kmsSeed = process.env.KMS_MOCK_MASTER_KEY || 'applebox_kms';
+            const MOCK_MASTER_KEY = crypto.scryptSync(kmsSeed, 'salt', 32);
             const ivKey = crypto.randomBytes(16);
             const cipherKey = crypto.createCipheriv('aes-256-cbc', MOCK_MASTER_KEY, ivKey);
             const encryptedKeyBlob = Buffer.concat([cipherKey.update(plainKey), cipherKey.final()]);
