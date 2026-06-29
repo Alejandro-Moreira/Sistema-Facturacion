@@ -57,7 +57,7 @@ if (process.env.NODE_ENV === 'production') app.set('trust proxy', 1);
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,
     store: memoryStore,
     cookie: {
         secure:   process.env.NODE_ENV === 'production',
@@ -99,6 +99,11 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    
+    // Si es una petición preflight de CORS (OPTIONS), responder inmediatamente
+    if (req.method === 'OPTIONS') {
+        return res.sendStatus(200);
+    }
     next();
 });
 

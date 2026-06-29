@@ -1,0 +1,84 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Docker Compose — Keycloak + OpenLDAP + phpLDAPadmin
+# Sistema de Facturación ECL FRUVER
+# ═══════════════════════════════════════════════════════════════════════════════
+# Uso:
+#   docker compose up -d          → Levantar todos los servicios
+#   docker compose down           → Detener todos los servicios
+#   docker compose logs -f ldap   → Ver logs de OpenLDAP
+# ═══════════════════════════════════════════════════════════════════════════════
+
+services:
+  # ─── Keycloak (Identity Provider) ──────────────────────────────────────────
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak
+    ports:
+      - "8080:8080"
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    command: start-dev
+    networks:
+      - facturacion-net
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/8080 && echo -e 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\n\\r\\n' >&3 && cat <&3 | grep -q '200\\|UP' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # ─── OpenLDAP (Directorio de Usuarios) ────────────────────────────────────
+  ldap:
+    image: osixia/openldap:1.5.0
+    container_name: openldap
+    ports:
+      - "389:389"
+      - "636:636"
+    environment:
+      LDAP_ORGANISATION: "Facturacion ECL FRUVER"
+      LDAP_DOMAIN: "facturacion.local"
+      LDAP_ADMIN_PASSWORD: "admin123"
+      LDAP_CONFIG_PASSWORD: "config123"
+      LDAP_READONLY_USER: "false"
+    volumes:
+      - ldap_data:/var/lib/ldap
+      - ldap_config:/etc/ldap/slapd.d
+      - ./ldap/bootstrap/usuarios-iniciales.ldif:/container/service/slapd/assets/config/bootstrap/ldif/custom/usuarios-iniciales.ldif
+    command: --copy-service
+    networks:
+      - facturacion-net
+    healthcheck:
+      test: ["CMD", "ldapsearch", "-x", "-H", "ldap://localhost", "-b", "dc=facturacion,dc=local", "-D", "cn=admin,dc=facturacion,dc=local", "-w", "admin123"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  # ─── phpLDAPadmin (Interfaz Visual para LDAP) ─────────────────────────────
+  phpldapadmin:
+    image: osixia/phpldapadmin:0.9.0
+    container_name: phpldapadmin
+    ports:
+      - "6443:443"
+    environment:
+      PHPLDAPADMIN_LDAP_HOSTS: ldap
+      PHPLDAPADMIN_HTTPS: "true"
+    depends_on:
+      ldap:
+        condition: service_healthy
+    networks:
+      - facturacion-net
+
+# ─── Volúmenes persistentes ─────────────────────────────────────────────────
+volumes:
+  ldap_data:
+    name: facturacion_ldap_data
+  ldap_config:
+    name: facturacion_ldap_config
+
+# ─── Red compartida ─────────────────────────────────────────────────────────
+networks:
+  facturacion-net:
+    name: facturacion-net
+    driver: bridge

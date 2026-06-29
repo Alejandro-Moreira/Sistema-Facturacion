@@ -3,6 +3,16 @@
 .env.*
 !.env.example
 node_modules/
+package.json
+package-lock.json
+
+# Ignore all markdown files except README.md
+*.md
+!README.md
+
+# ─── Docker / LDAP ───────────────────────────────────────────────────────────
+ldap/data/
+ldap/config/
 
 # =========================================
 # Unity 2022+ .gitignore
