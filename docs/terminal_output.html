@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Terminal - Docker Compose Status</title>
+  <style>
+    body {
+      background-color: #0c0c0c;
+      color: #cccccc;
+      font-family: 'Consolas', 'Courier New', monospace;
+      padding: 20px;
+      margin: 0;
+    }
+    .terminal {
+      background-color: #1e1e1e;
+      border: 1px solid #333333;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      overflow: hidden;
+    }
+    .header {
+      background-color: #2d2d2d;
+      padding: 10px 15px;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid #3a3a3a;
+    }
+    .buttons {
+      display: flex;
+      gap: 8px;
+      margin-right: 15px;
+    }
+    .button {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    .close { background-color: #ff5f56; }
+    .minimize { background-color: #ffbd2e; }
+    .maximize { background-color: #27c93f; }
+    .title {
+      color: #999999;
+      font-size: 13px;
+    }
+    .content {
+      padding: 20px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .command {
+      color: #00ff00;
+      margin-bottom: 15px;
+    }
+    .command::before {
+      content: "PS C:\\Users\\morei\\OneDrive\\Escritorio\\Sistema-Facturacion> ";
+      color: #3b78ff;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    th, td {
+      text-align: left;
+      padding: 6px 12px;
+    }
+    th {
+      color: #888888;
+      border-bottom: 1px solid #333333;
+    }
+    .status-up {
+      color: #27c93f;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="terminal">
+    <div class="header">
+      <div class="buttons">
+        <div class="button close"></div>
+        <div class="button minimize"></div>
+        <div class="button maximize"></div>
+      </div>
+      <div class="title">PowerShell - docker compose ps</div>
+    </div>
+    <div class="content">
+      <div class="command">docker compose ps</div>
+      <table>
+        <thead>
+          <tr>
+            <th>NAME</th>
+            <th>IMAGE</th>
+            <th>COMMAND</th>
+            <th>SERVICE</th>
+            <th>CREATED</th>
+            <th>STATUS</th>
+            <th>PORTS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>keycloak</td>
+            <td>quay.io/keycloak/keycloak:latest</td>
+            <td>"/opt/keycloak/bin/k…"</td>
+            <td>keycloak</td>
+            <td>50 minutes ago</td>
+            <td><span class="status-up">Up 50 minutes (healthy)</span></td>
+            <td>0.0.0.0:8080-&gt;8080/tcp</td>
+          </tr>
+          <tr>
+            <td>openldap</td>
+            <td>osixia/openldap:1.5.0</td>
+            <td>"/container/tool/run…"</td>
+            <td>ldap</td>
+            <td>50 minutes ago</td>
+            <td><span class="status-up">Up 50 minutes (healthy)</span></td>
+            <td>0.0.0.0:389-&gt;389/tcp, 0.0.0.0:636-&gt;636/tcp</td>
+          </tr>
+          <tr>
+            <td>phpldapadmin</td>
+            <td>osixia/phpldapadmin:0.9.0</td>
+            <td>"/container/tool/run"</td>
+            <td>phpldapadmin</td>
+            <td>50 minutes ago</td>
+            <td><span class="status-up">Up 50 minutes</span></td>
+            <td>0.0.0.0:6443-&gt;443/tcp</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Tablero Ágil - Scrum Board</title>
+  <style>
+    body {
+      background-color: #090b14;
+      color: #cbd5e0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      padding: 30px;
+    }
+    .board-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: #111422;
+      border: 1px solid #1f2747;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 20px 45px rgba(0,0,0,0.5);
+    }
+    .board-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      border-bottom: 1px solid #1f2747;
+      padding-bottom: 20px;
+    }
+    .board-title {
+      margin: 0;
+      font-size: 26px;
+      color: #ffffff;
+      font-weight: 700;
+    }
+    .board-title span {
+      font-size: 14px;
+      color: #718096;
+      font-weight: 400;
+      display: block;
+      margin-top: 5px;
+    }
+    .board-stats {
+      display: flex;
+      gap: 15px;
+    }
+    .stat-badge {
+      background: #1a2035;
+      border: 1px solid #2d3748;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .stat-badge span {
+      color: #4fd1c5;
+    }
+    .columns-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 25px;
+    }
+    .column {
+      background: #171c32;
+      border: 1px solid #202746;
+      border-radius: 10px;
+      padding: 20px;
+      min-height: 450px;
+      display: flex;
+      flex-direction: column;
+    }
+    .column-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #202746;
+      padding-bottom: 10px;
+    }
+    .column-title {
+      font-size: 15px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #a0aec0;
+      margin: 0;
+    }
+    .column-count {
+      background: #2d3748;
+      color: #cbd5e0;
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 700;
+    }
+    .cards-container {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      flex-grow: 1;
+    }
+    .card {
+      background: #1e2544;
+      border: 1px solid #2d3765;
+      border-radius: 8px;
+      padding: 15px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+    }
+    .card:hover {
+      border-color: #4fd1c5;
+      transform: translateY(-2px);
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .card-id {
+      font-size: 12px;
+      font-weight: 700;
+      color: #4fd1c5;
+    }
+    .card-points {
+      background: rgba(79, 209, 197, 0.1);
+      color: #4fd1c5;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+    .card-title {
+      font-size: 13.5px;
+      color: #ffffff;
+      font-weight: 600;
+      margin: 0 0 10px 0;
+      line-height: 1.4;
+    }
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .card-tag {
+      background: #162a45;
+      color: #4299e1;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .card-tag.kms {
+      background: #2b1f48;
+      color: #9f7aea;
+    }
+    .card-tag.sso {
+      background: #18302b;
+      color: #38a169;
+    }
+    .card-assignee {
+      font-size: 11px;
+      color: #a0aec0;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .assignee-avatar {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #718096;
+      color: #ffffff;
+      font-weight: 700;
+      display: inline-block;
+      text-align: center;
+      line-height: 20px;
+      font-size: 10px;
+    }
+    .empty-placeholder {
+      border: 2px dashed #202746;
+      border-radius: 8px;
+      padding: 30px 10px;
+      text-align: center;
+      color: #4a5568;
+      font-size: 13px;
+      margin: auto 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="board-container">
+    <div class="board-header">
+      <div>
+        <h1 class="board-title">Tablero Ágil — AppleBox Estudios
+          <span>Ecosistema de Seguridad de Software</span>
+        </h1>
+      </div>
+      <div class="board-stats">
+        <div class="stat-badge">Sprint: <span>Sprint 2 (Finalizado)</span></div>
+        <div class="stat-badge">Puntos Completados: <span>31 / 31</span></div>
+      </div>
+    </div>
+    
+    <div class="columns-grid">
+      <!-- COLUMN 1 -->
+      <div class="column">
+        <div class="column-header">
+          <h2 class="column-title">Backlog</h2>
+          <span class="column-count">0</span>
+        </div>
+        <div class="cards-container">
+          <div class="empty-placeholder">Sin tareas en Backlog</div>
+        </div>
+      </div>
+      
+      <!-- COLUMN 2 -->
+      <div class="column">
+        <div class="column-header">
+          <h2 class="column-title">En Progreso</h2>
+          <span class="column-count">0</span>
+        </div>
+        <div class="cards-container">
+          <div class="empty-placeholder">Cero tareas activas</div>
+        </div>
+      </div>
+      
+      <!-- COLUMN 3 -->
+      <div class="column">
+        <div class="column-header">
+          <h2 class="column-title">Completado</h2>
+          <span class="column-count">4</span>
+        </div>
+        <div class="cards-container">
+          <!-- CARD 1 -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-id">HU-01</span>
+              <span class="card-points">5 pts</span>
+            </div>
+            <p class="card-title">Desplegar Keycloak y OpenLDAP en contenedores Docker de forma aislada y segura.</p>
+            <div class="card-footer">
+              <span class="card-tag">INFRA</span>
+              <div class="card-assignee">
+                <span class="assignee-avatar">AM</span> A. Moreira
+              </div>
+            </div>
+          </div>
+          
+          <!-- CARD 2 -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-id">HU-02</span>
+              <span class="card-points">8 pts</span>
+            </div>
+            <p class="card-title">Configurar federación de usuarios de LDAP corporativo en Keycloak mediante REST API.</p>
+            <div class="card-footer">
+              <span class="card-tag">IAM</span>
+              <div class="card-assignee">
+                <span class="assignee-avatar">AV</span> A. Vilacundo
+              </div>
+            </div>
+          </div>
+          
+          <!-- CARD 3 -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-id">HU-03</span>
+              <span class="card-points">5 pts</span>
+            </div>
+            <p class="card-title">Integrar autenticación SSO con Keycloak en el frontend React (panel AppleBox).</p>
+            <div class="card-footer">
+              <span class="card-tag sso">SSO</span>
+              <div class="card-assignee">
+                <span class="assignee-avatar">AM</span> A. Moreira
+              </div>
+            </div>
+          </div>
+          
+          <!-- CARD 4 -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-id">HU-04</span>
+              <span class="card-points">13 pts</span>
+            </div>
+            <p class="card-title">Implementar cifrado simétrico AES-256-GCM y descifrado de llaves (Envelope Encryption) con AWS KMS en Micro-Backend B.</p>
+            <div class="card-footer">
+              <span class="card-tag kms">KMS</span>
+              <div class="card-assignee">
+                <span class="assignee-avatar">AV</span> A. Vilacundo
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</body>
+</html>

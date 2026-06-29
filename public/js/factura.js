@@ -110,20 +110,26 @@ $(document).ready(function() {
     function mostrarListaProductos(productos) {
         const lista = $('<div class="list-group search-results">');
         productos.forEach(producto => {
-            lista.append(
-                $('<a href="#" class="list-group-item list-group-item-action">')
-                    .html(`
-                        <div><strong>${producto.codigo}</strong> - ${producto.nombre}</div>
-                        <div class="small text-muted">
-                            KG: $${producto.precio_kg} | UND: $${producto.precio_unidad} | LB: $${producto.precio_libra}
-                        </div>
-                    `)
-                    .click(function(e) {
-                        e.preventDefault();
-                        seleccionarProducto(producto);
-                        lista.remove();
-                    })
+            const item = $('<a href="#" class="list-group-item list-group-item-action">');
+            
+            // Usar elementos y text() para prevenir vulnerabilidades de XSS (CWE-79)
+            const infoDiv = $('<div>');
+            const codeStrong = $('<strong>').text(producto.codigo);
+            infoDiv.append(codeStrong).append(document.createTextNode(` - ${producto.nombre}`));
+            
+            const priceDiv = $('<div class="small text-muted">').text(
+                `KG: $${producto.precio_kg} | UND: $${producto.precio_unidad} | LB: $${producto.precio_libra}`
             );
+            
+            item.append(infoDiv).append(priceDiv);
+            
+            item.click(function(e) {
+                e.preventDefault();
+                seleccionarProducto(producto);
+                lista.remove();
+            });
+            
+            lista.append(item);
         });
         $('#producto').closest('.search-container').append(lista);
     }

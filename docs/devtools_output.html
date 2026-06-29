@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Chrome DevTools - Network Tab</title>
+  <style>
+    body {
+      background-color: #1e1e1e;
+      color: #cccccc;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 0;
+      margin: 0;
+    }
+    .devtools {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      border: 1px solid #333333;
+    }
+    .toolbar {
+      background-color: #2d2d2d;
+      border-bottom: 1px solid #3c3c3c;
+      padding: 8px 12px;
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      font-size: 12px;
+    }
+    .active-tab {
+      color: #4da6ff;
+      border-bottom: 2px solid #4da6ff;
+      padding-bottom: 4px;
+      font-weight: bold;
+    }
+    .tab {
+      color: #aaaaaa;
+      cursor: pointer;
+    }
+    .main-area {
+      display: flex;
+      flex: 1;
+    }
+    .requests-list {
+      width: 300px;
+      border-right: 1px solid #3c3c3c;
+      background-color: #1e1e1e;
+      font-size: 11px;
+    }
+    .request-header {
+      background-color: #252526;
+      padding: 6px 10px;
+      border-bottom: 1px solid #3c3c3c;
+      color: #888888;
+      display: flex;
+      justify-content: space-between;
+    }
+    .request-item {
+      padding: 8px 10px;
+      border-bottom: 1px solid #2d2d2d;
+      display: flex;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+    .request-item.selected {
+      background-color: #37373d;
+      color: #ffffff;
+    }
+    .method-post {
+      color: #eca539;
+      font-weight: bold;
+      margin-right: 5px;
+    }
+    .status-200 {
+      color: #55b255;
+    }
+    .details-panel {
+      flex: 1;
+      background-color: #1e1e1e;
+      padding: 15px;
+      font-size: 12px;
+      overflow-y: auto;
+    }
+    .section-title {
+      font-weight: bold;
+      color: #4da6ff;
+      border-bottom: 1px solid #3c3c3c;
+      padding-bottom: 5px;
+      margin-top: 15px;
+      margin-bottom: 8px;
+      font-size: 12px;
+    }
+    pre {
+      background-color: #252526;
+      border: 1px solid #2d2d2d;
+      padding: 10px;
+      border-radius: 4px;
+      font-family: 'Consolas', monospace;
+      font-size: 11px;
+      color: #9cdcfe;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .key { color: #9cdcfe; }
+    .string { color: #ce9178; }
+    .number { color: #b5cea8; }
+    .boolean { color: #569cd6; }
+  </style>
+</head>
+<body>
+  <div class="devtools">
+    <div class="toolbar">
+      <span class="tab">Elements</span>
+      <span class="tab">Console</span>
+      <span class="tab">Sources</span>
+      <span class="active-tab">Network</span>
+      <span class="tab">Performance</span>
+      <span class="tab">Memory</span>
+      <span class="tab">Application</span>
+      <span class="tab">Security</span>
+    </div>
+    <div class="main-area">
+      <div class="requests-list">
+        <div class="request-header">
+          <span>Name</span>
+          <span>Status</span>
+        </div>
+        <div class="request-item">
+          <span>secure (Sistema A)</span>
+          <span class="status-200">200</span>
+        </div>
+        <div class="request-item selected">
+          <span><span class="method-post">POST</span>decrypt (Sistema B)</span>
+          <span class="status-200">200</span>
+        </div>
+        <div class="request-item">
+          <span>certs (Keycloak)</span>
+          <span class="status-200">200</span>
+        </div>
+      </div>
+      <div class="details-panel">
+        <div class="section-title">General Info</div>
+        <div style="margin-left: 10px; line-height: 1.6;">
+          <strong>Request URL:</strong> http://localhost:3003/decrypt<br>
+          <strong>Request Method:</strong> POST<br>
+          <strong>Status Code:</strong> <span class="status-200">200 OK</span><br>
+          <strong>Remote Address:</strong> 127.0.0.1:3003<br>
+          <strong>Referrer Policy:</strong> no-referrer-when-downgrade
+        </div>
+
+        <div class="section-title">Request Payload (Encrypted Data & KMS Envelope)</div>
+        <pre>{
+  <span class="key">"encryptedData"</span>: <span class="string">"U2FsdGVkX1+vO132M45G...[AES-256-GCM ciphertext of invoice JSON]"</span>,
+  <span class="key">"encryptedKey"</span>: <span class="string">"AQIDAHgdb5Z...[Data Key encrypted by AWS KMS]"</span>,
+  <span class="key">"iv"</span>: <span class="string">"R01DdW12...[96-bit Initialization Vector]"</span>,
+  <span class="key">"authTag"</span>: <span class="string">"bWljcm9...[GCM authentication tag]"</span>
+}</pre>
+
+        <div class="section-title">Response (Decrypted Plaintext)</div>
+        <pre>{
+  <span class="key">"invoice"</span>: {
+    <span class="key">"id"</span>: <span class="number">1</span>,
+    <span class="key">"numero"</span>: <span class="string">"FAC-2026-0001"</span>,
+    <span class="key">"fecha"</span>: <span class="string">"2026-06-26T01:58:38Z"</span>,
+    <span class="key">"cliente"</span>: <span class="string">"Alpina Ecuador"</span>,
+    <span class="key">"monto"</span>: <span class="number">15000.00</span>,
+    <span class="key">"forma_pago"</span>: <span class="string">"Transferencia Bancaria"</span>,
+    <span class="key">"estado"</span>: <span class="string">"pagada"</span>,
+    <span class="key">"items"</span>: [
+      { <span class="key">"descripcion"</span>: <span class="string">"Día de rodaje (crew completo)"</span>, <span class="key">"cantidad"</span>: <span class="number">1</span>, <span class="key">"precio"</span>: <span class="number">8000</span> },
+      { <span class="key">"descripcion"</span>: <span class="string">"Post-producción y color grading"</span>, <span class="key">"cantidad"</span>: <span class="number">1</span>, <span class="key">"precio"</span>: <span class="number">5000</span> },
+      { <span class="key">"descripcion"</span>: <span class="string">"Motion graphics"</span>, <span class="key">"cantidad"</span>: <span class="number">1</span>, <span class="key">"precio"</span>: <span class="number">2000</span> }
+    ]
+  }
+}</pre>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
